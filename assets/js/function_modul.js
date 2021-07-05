@@ -1,57 +1,81 @@
 // import
 const fs = require(`fs`);
+const chalk = require(`chalk`);
+const vtr = require(`validator`);
 const { stdout } = require("process");
-const readline = require(`readline`);
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: stdout,
-});
 // akhir import
 
 
 
 
 
-// RUN
-let data = null;
-data = JSON.parse(fs.readFileSync(`data/contact.json`).toString());
-// akhir RUN
+// chalk
+const KESALAHAN = chalk.red.inverse.bold;
+const BENAR = chalk.green.inverse.bold;
+// akhir chalk
+
 
 
 
 
 //function module
-function daftarSw(nama, kelas) {
-    this.nama = nama,
-        this.kelas = kelas
+const daftarSw = (nama, kelas, email) => {
+    const obj = {
+        nama,
+        kelas,
+        email
+    }
+    return obj;
 }
 
-const daftarDanUp = (nama, kelas) => {
-    data.unshift(new daftarSw(nama, kelas));
+const daftarDanUp = (nama, kelas, email) => {
+    let data = null;
+    data = JSON.parse(fs.readFileSync(`data/contact.json`).toString());
+
+    const duplikat = data.find((data) => data.nama === nama);
+    if(duplikat) {
+        console.log(KESALAHAN` sudah ada, gunakan yang lain `);
+        return false;
+    }
+
+    if (!vtr.isEmail(email)) {
+        console.log(KESALAHAN` email salah `)
+        return false;
+    }
+
+    data.unshift(daftarSw(nama, kelas, email));
     if (data.length > 3) { data.pop() }
 
     // write filesynch (menuliskan string ke file secara synchronous)
     try {
         fs.writeFileSync(`data/contact.json`, JSON.stringify(data));
-    } catch (e) { console.log(e); }
+    } 
+    catch (e) { console.log(e); }
+
+    console.log(BENAR` Data berhasil di input `)
 }
 
-// membuat promise
-const pertanyaan = (soal) => {
-    return new Promise((resolve, reject) => {
-        rl.question(`${soal} : `, (jawaban) => { resolve(jawaban); });
-    });
-}
 
-const bertanya = async () => {
-    const nama = await pertanyaan(`Nama`);
-    const kelas = await pertanyaan(`Kelas`);
 
-    daftarDanUp(nama, kelas);
-    rl.close();
-};
+
+
 
 
 
 // EXPORT
-module.exports = {fs, bertanya};
+module.exports = {daftarDanUp};
+
+
+
+
+
+
+
+// sekali readline dibuat maka harus ada rl.close() agar command line nya tidak terus menerus berjalan tanpa berhenti
+// const readline = require(`readline`);
+// const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: stdout,
+// });
+
+// rl.close();
