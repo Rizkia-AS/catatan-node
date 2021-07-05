@@ -5,7 +5,7 @@
 // console.log(process.argv[2]);
 
 // - import
-const {daftarDanUp} = require(`./assets/js/function_modul.js`);
+const { daftarDanUp, listSiswa, deleteData} = require(`./assets/js/function_modul.js`);
 // akhir import
 
 
@@ -34,30 +34,40 @@ yargs.command({
             type: `string`
         }
     },
-    handler(argv) {
+    handler(argv) { daftarDanUp(argv.nama, argv.kelas, argv.email); },
+})
+.demandCommand();
 
-        daftarDanUp(argv.nama, argv.kelas, argv.email);
+yargs.command({
+    command : `list`,
+    describe : `menampilkan semua nama dan email`,
+    handler() { listSiswa(); }
+});
+
+yargs.command({
+    command: `detail`,
+    builder : {
+        nama : {
+            describe : `nama`,
+            demandOption : true,
+            type: `string`
+        }
     },
+    describe: `menampilkan informasi lengkap seseorang`,
+    handler(argv) { listSiswa(`find`, argv.nama); }
+});
+
+yargs.command({
+    command: `delete`,
+    builder: {
+        nama: {
+            describe: `nama`,
+            demandOption: true,
+            type: `string`
+        }
+    },
+    describe: `menghapus siswa dari list`,
+    handler(argv) { deleteData(argv.nama); }
 });
 
 yargs.parse();
-
-
-
-
-
-
-
-
-
-
-
-
-
-// RUN
-// if (!fs.existsSync(`data/Contact.json`)) {
-//     fs.writeFileSync(`data/contact.json`, `[]`, `utf-8`);
-// }
-
-// daftarDanUp();
-// bertanya();
